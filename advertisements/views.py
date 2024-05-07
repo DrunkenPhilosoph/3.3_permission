@@ -14,12 +14,11 @@ class AdvertisementViewSet(ModelViewSet):
     filter_backends = (DjangoFilterBackend, SearchFilter)
     permission_classes = (IsAuthenticated, IsOwner)
     filterset_class = AdvertisementFilter
-    search_fields = ('creator')
-
+    search_fields = ('creator', 'status')
 
     def get_permissions(self):
         """Получение прав для действий."""
-        if self.action in ["create", "update", "partial_update"]:
+        if self.action in ["create", "update", "partial_update", "destroy"]:
             return [IsAuthenticated(), IsOwner()]
         return []
 
@@ -28,6 +27,9 @@ class AdvertisementViewSet(ModelViewSet):
 
     def get_queryset(self):
         user_id = self.request.query_params.get('creator')
+        status = self.request.query_params.get('status')
         if user_id:
             queryset = Advertisement.objects.filter(creator=user_id)
+        if status:
+            queryset = Advertisement.objects.filter(status=status)
         return queryset
